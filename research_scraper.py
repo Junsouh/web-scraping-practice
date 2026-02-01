@@ -60,9 +60,10 @@ async def main():
             print(f"Visiting: {current_url}")
             page = await browser.get(current_url)
 
-            # Save the page while we have it
-            await page.sleep(10)
-            await save_page(page, current_url, data_folder)
+            if (current_url != SCRAPING_WEBSITE):
+                # Save the page while we have it
+                await page.sleep(10)
+                await save_page(page, current_url, data_folder)
 
             # Find all tags with href under an anchor tag
             all_tags = await page.select_all('a[href]')
