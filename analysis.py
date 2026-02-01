@@ -2,6 +2,8 @@ import os
 import glob
 import pandas as pd
 from bs4 import BeautifulSoup
+import re
+import unicodedata
 
 def analyze_html(folder_path):
     data = []
@@ -69,10 +71,69 @@ def scraping_stats(csv):
     
     print(stats_df)
 
+def clean_text(text):
+    if not text:
+        return ""
+
+    # Normalize Unicode (Fixes "Smart Quotes" and weird characters)
+    # NFKC converts characters like ’ or “ into their standard forms
+    text = unicodedata.normalize('NFKC', text)
+
+    # Manual Quote Mapping (The missing step)
+    # This maps all curly/fancy quotes to their simple ASCII equivalents
+    quote_map = {
+        '‘': "'", '’': "'", '‚': "'", '‛': "'", # Single quotes/Apostrophes
+        '“': '"', '”': '"', '„': '"', '‟': '"', # Double quotes
+        '′': "'", '″': '"',                      # Primes (often used as quotes)
+    }
+    for curly, straight in quote_map.items():
+        text = text.replace(curly, straight)
+
+    # Replace all types of whitespace (tabs, newlines, non-breaking spaces) 
+    # with a single standard space
+    text = re.sub(r'\s+', ' ', text)
+
+    # Strip literal quotes that might wrap the string (like "'Text'")
+    text = text.strip().strip("'\"")
+
+    # Remove "Hidden" control characters that sometimes sneak in during scraping
+    text = "".join(ch for ch in text if unicodedata.category(ch)[0] != "C")
+
+    return text.strip()
+
+def find_categories(data_folder, website):
+    categories = set()
+
+    # find homepage filename
+    homepage_name = data_folder + "/" + website.replace("https://", "").replace("http://", "").replace("/", "_").rstrip("_") + ".html"
+
+    with open(homepage_name, 'r', encoding='utf-8') as f:
+        html = BeautifulSoup(f.read(), 'html.parser')
+
+        # try to find the categories by looking at specific patterns in the homepage
+        nav_links = html.find_all('a', href=True)
+        for link in nav_links:
+            href = link['href']
+            # Look for patterns like '/category/' or 'product-category'
+            if '/category/' in href or 'product-cat' in href:
+                raw_text = link.text.strip()
+                category_name = clean_text(raw_text)
+                if category_name:
+                    categories.add(category_name)
+
+    return categories
+
+
+CREATE_CSV = False
+SCRAPING_WEBSITE = "https://editablepsd.xyz/"
 def main():
     data_folder = "html_files/"
-    df = analyze_html(data_folder)
-    scraping_stats("scraping_analysis.csv")
+    if CREATE_CSV:
+        df = analyze_html(data_folder)
+        scraping_stats("scraping_analysis.csv")
+    cat = find_categories(data_folder, SCRAPING_WEBSITE + "page/1")
+    
+
 
 if __name__ == "__main__":
     main()
