@@ -119,19 +119,81 @@ def find_categories(data_folder, website):
                 raw_text = link.text.strip()
                 category_name = clean_text(raw_text)
                 if category_name:
-                    categories.add(category_name)
+                    categories.add((category_name, href))
 
     return categories
 
+def extract_links_edd(file_path):
+    """
+    Extracts the product links from all 'edd_download' cards in a single file.
+    """
+    product_data = []
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        soup = BeautifulSoup(f.read(), 'html.parser')
+        
+        # Find all the card containers
+        cards = soup.find_all('div', class_='edd_download')
+        
+        for card in cards:
+            # Look for the link inside the card
+            # Usually, EDD puts the main link in an <a> tag wrapping the title or image
+            link_tag = card.find('a', href=True)
+            
+            if link_tag:
+                product_data.append([
+                    card.get('id'),      # e.g., 'edd_download_256'
+                    link_tag['href']    # e.g., 'https://editablepsd.xyz/product/id-card/'
+                ])
+                
+    return product_data
+
+def find_category_pages(folder, category_url):
+    category_url = category_url.replace("https://", "").replace("http://", "").replace("index.html", "").replace("/", "_").rstrip("_")
+
+    matching_files = glob.glob(os.path.join(folder, f"*{category_url}*.html"))
+
+    category_url = category_url.replace("category_", "")
+    matching_files.extend(glob.glob(os.path.join(folder, f"*{category_url}*.html")))
+
+    data = []
+    for file in matching_files:
+        data.extend(extract_links_edd(file))
+    
+    return data
+        
+
+
+
+
+        
+         
 
 CREATE_CSV = False
 SCRAPING_WEBSITE = "https://editablepsd.xyz/"
+DATA_FOLDER = "html_files/"
 def main():
     data_folder = "html_files/"
     if CREATE_CSV:
         df = analyze_html(data_folder)
         scraping_stats("scraping_analysis.csv")
-    cat = find_categories(data_folder, SCRAPING_WEBSITE + "page/1")
+    categories = find_categories(data_folder, SCRAPING_WEBSITE + "page/1")
+    print("Found the following categories:")
+    for cat in categories:
+        print(f"{cat}")
+    
+    for cat in categories:
+        links = set()
+        data = find_category_pages(DATA_FOLDER, cat[1]);
+        for link in data:
+            links.add(link[1])
+
+        print(f"Category {cat[0]} had {len(links)} items total.\n")
+
+    
+
+
+
     
 
 
