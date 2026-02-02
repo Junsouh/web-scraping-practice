@@ -1,0 +1,7 @@
+Category,mean,max,min,Max_Items,Min_Items
+Credit card,28.0,28,28,"cc-wells-fargo, cc-capital-one, cc-movo, cc-chase","cc-wells-fargo, cc-capital-one, cc-movo, cc-chase"
+Driver's license,29.5625,33,28,"new-york-dl-photo, illinois-dl-photo, texas-dl-photo, florida-dl-photo, california-dl-photo","dl-nebraska, dl-delaware, dl-new-mexico, dl-espana, dl-texas-new, dl-arizona, dl-hawaii, dl-georgia, dl-colorado, dl-california, dl-massachusetts"
+Identity card,31.0,33,28,"id-belgium-photo, id-romania-photo, germany-id-photo","id-lithuania, id-belgium"
+Passport,30.857142857142858,33,28,"passport-card-usa-photo, passport-usa-photo, passport-germany-photo, passport-uk-photo","passport-usa, passport-germany, passport-canada"
+Statement,28.0,28,28,"statement-suntrust, statement-usbank","statement-suntrust, statement-usbank"
+Utility bill,28.0,28,28,"bill-ee-uk, bill-comed-usa, bill-gas-uk","bill-ee-uk, bill-comed-usa, bill-gas-uk"

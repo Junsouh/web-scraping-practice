@@ -161,13 +161,54 @@ def find_category_pages(folder, category_url):
         data.extend(extract_links_edd(file))
     
     return data
+
+def find_price(folder, url):
+    url = url.replace("../", "").replace("index.html", "")
+    url = url.replace("/", "_").rstrip("_")
+
+    matching_files = glob.glob(os.path.join(folder, f"*{url}.html"))
+    if (len(matching_files) > 1): 
+        print("Warning! more than one matching file")
+        for file in matching_files:
+            print(file)
+    file_path = matching_files[0]
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        soup = BeautifulSoup(f.read(), 'html.parser')
         
+        # Find all the card containers
+        price_container = soup.find_all('span', class_='edd_price')[0]
+        price = price_container.text.strip()
+    
+    return price
 
-
-
-
+def clean_price(price_str):
+    if not price_str:
+        return 0
+    
+    # 1. Remove everything except digits and decimal points
+    clean_str = re.sub(r'[^\d.]', '', price_str)
+    
+    try:
+        value = float(clean_str)
         
-         
+        # 2. Convert to integer if there's no decimal value (e.g., 33.0 -> 33)
+        if value.is_integer():
+            return int(value)
+        
+        return value
+    except ValueError:
+        return 0
+    
+def get_titles_at_price(category_df, price_type):
+    if price_type == "max":
+        target = category_df['Price'].max()
+    else:
+        target = category_df['Price'].min()
+    
+    # Filter for all items matching that price (handles ties)
+    matches = category_df[category_df['Price'] == target]['Title'].tolist()
+    return ", ".join(matches)
 
 CREATE_CSV = False
 SCRAPING_WEBSITE = "https://editablepsd.xyz/"
@@ -182,20 +223,37 @@ def main():
     for cat in categories:
         print(f"{cat}")
     
+    prices_and_item = []
     for cat in categories:
         links = set()
         data = find_category_pages(DATA_FOLDER, cat[1]);
         for link in data:
             links.add(link[1])
 
-        print(f"Category {cat[0]} had {len(links)} items total.\n")
+        print(f"Category {cat[0]} has {len(links)} items total.")
 
+        prices = []
+        for link in links:
+            price = clean_price(find_price(DATA_FOLDER, link))
+            clean_link = link.replace("index.html", "").replace("../", "").replace("/downloads/", "").rstrip("/")
+            prices_and_item.append({
+                "Category" : cat[0],
+                "Title"    : clean_link,
+                "Price"    : price}
+            )
+            prices.append(price)
+
+    df = pd.DataFrame(prices_and_item)
+    summary = df.groupby('Category')['Price'].agg(['mean', 'max', 'min']).reset_index()
+
+    print(summary.to_string(index=False))
+
+    summary['Max_Items'] = summary['Category'].apply(
+    lambda x: get_titles_at_price(df[df['Category'] == x], 'max'))
+    summary['Min_Items'] = summary['Category'].apply(
+    lambda x: get_titles_at_price(df[df['Category'] == x], 'min'))
     
-
-
-
-    
-
+    summary.to_csv('category_analysis.csv', index=False)
 
 if __name__ == "__main__":
     main()
