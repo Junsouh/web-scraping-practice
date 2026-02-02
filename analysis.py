@@ -246,6 +246,7 @@ def main():
     df = pd.DataFrame(prices_and_item)
     summary = df.groupby('Category')['Price'].agg(['mean', 'max', 'min']).reset_index()
 
+    summary = summary.round(2)
     print(summary.to_string(index=False))
 
     summary['Max_Items'] = summary['Category'].apply(

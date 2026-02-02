@@ -1,7 +1,7 @@
-Category,mean,max,min,Max_Items,Min_Items
-Credit card,28.0,28,28,"cc-wells-fargo, cc-capital-one, cc-movo, cc-chase","cc-wells-fargo, cc-capital-one, cc-movo, cc-chase"
-Driver's license,29.5625,33,28,"new-york-dl-photo, illinois-dl-photo, texas-dl-photo, florida-dl-photo, california-dl-photo","dl-nebraska, dl-delaware, dl-new-mexico, dl-espana, dl-texas-new, dl-arizona, dl-hawaii, dl-georgia, dl-colorado, dl-california, dl-massachusetts"
-Identity card,31.0,33,28,"id-belgium-photo, id-romania-photo, germany-id-photo","id-lithuania, id-belgium"
-Passport,30.857142857142858,33,28,"passport-card-usa-photo, passport-usa-photo, passport-germany-photo, passport-uk-photo","passport-usa, passport-germany, passport-canada"
-Statement,28.0,28,28,"statement-suntrust, statement-usbank","statement-suntrust, statement-usbank"
-Utility bill,28.0,28,28,"bill-ee-uk, bill-comed-usa, bill-gas-uk","bill-ee-uk, bill-comed-usa, bill-gas-uk"
+Category        , mean , max, min, Max_Items                                                                                    , Min_Items
+Credit card     , 28.0 ,  28,  28, "cc-wells-fargo, cc-capital-one, cc-movo, cc-chase"                                          , "cc-wells-fargo, cc-capital-one, cc-movo, cc-chase"
+Driver's license, 29.56,  33,  28, "illinois-dl-photo, texas-dl-photo, new-york-dl-photo, california-dl-photo, florida-dl-photo", "dl-massachusetts, dl-colorado, dl-delaware, dl-arizona, dl-hawaii, dl-new-mexico, dl-georgia, dl-texas-new, dl-nebraska, dl-espana, dl-california"
+Identity card   , 31.0 ,  33,  28, "germany-id-photo, id-romania-photo, id-belgium-photo"                                       , "id-belgium, id-lithuania"
+Passport        , 30.86,  33,  28, "passport-usa-photo, passport-card-usa-photo, passport-germany-photo, passport-uk-photo"     , "passport-canada, passport-usa, passport-germany"
+Statement       , 28.0 ,  28,  28, "statement-usbank, statement-suntrust"                                                       , "statement-usbank, statement-suntrust"
+Utility bill    , 28.0 ,  28,  28, "bill-ee-uk, bill-gas-uk, bill-comed-usa"                                                    , "bill-ee-uk, bill-gas-uk, bill-comed-usa"
