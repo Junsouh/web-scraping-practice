@@ -238,6 +238,21 @@ def analyze_descriptions(text):
     filtered = [w for w in words if w not in STOPWORDS]
     return ", ".join([f"{w}({c})" for w, c in Counter(filtered).most_common(TOP_N)])
 
+def find_contacts(data_folder, website):
+    # find homepage filename
+    homepage_name = data_folder + website.replace("https://", "").replace("http://", "").replace("/", "_").rstrip("_") + ".html"
+
+    with open(homepage_name, 'r', encoding='utf-8') as f:
+        html = BeautifulSoup(f.read(), 'html.parser')
+
+        contacts = html.find('div', class_='contctList')
+
+        if contacts:
+            # Extract text, using strip=True to clean up whitespace
+            # and separator=" " to keep space between paragraphs
+            return contacts.get_text(separator=", ", strip=True)
+
+    return ""
 
 
 CREATE_CSV = False
@@ -294,6 +309,8 @@ def main():
                 "Title": clean_link,
                 "Description": desc
             })
+
+    print(f"\nContacts Found: {find_contacts(data_folder, SCRAPING_WEBSITE + "page/1")}\n")
 
     # Process price information and get statistics
     df_price = pd.DataFrame(prices_and_item)

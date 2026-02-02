@@ -1,7 +1,7 @@
 Category,mean,max,min,Max_Items,Min_Items
-Credit card,28.0,28,28,"cc-wells-fargo, cc-chase, cc-capital-one, cc-movo","cc-wells-fargo, cc-chase, cc-capital-one, cc-movo"
-Driver's license,29.56,33,28,"illinois-dl-photo, florida-dl-photo, new-york-dl-photo, texas-dl-photo, california-dl-photo","dl-new-mexico, dl-georgia, dl-nebraska, dl-texas-new, dl-california, dl-arizona, dl-espana, dl-colorado, dl-delaware, dl-massachusetts, dl-hawaii"
-Identity card,31.0,33,28,"id-belgium-photo, germany-id-photo, id-romania-photo","id-belgium, id-lithuania"
-Passport,30.86,33,28,"passport-germany-photo, passport-usa-photo, passport-card-usa-photo, passport-uk-photo","passport-usa, passport-canada, passport-germany"
+Credit card,28.0,28,28,"cc-movo, cc-chase, cc-capital-one, cc-wells-fargo","cc-movo, cc-chase, cc-capital-one, cc-wells-fargo"
+Driver's license,29.56,33,28,"illinois-dl-photo, texas-dl-photo, california-dl-photo, florida-dl-photo, new-york-dl-photo","dl-arizona, dl-massachusetts, dl-colorado, dl-delaware, dl-nebraska, dl-new-mexico, dl-texas-new, dl-hawaii, dl-georgia, dl-california, dl-espana"
+Identity card,31.0,33,28,"id-belgium-photo, id-romania-photo, germany-id-photo","id-lithuania, id-belgium"
+Passport,30.86,33,28,"passport-uk-photo, passport-usa-photo, passport-card-usa-photo, passport-germany-photo","passport-usa, passport-canada, passport-germany"
 Statement,28.0,28,28,"statement-suntrust, statement-usbank","statement-suntrust, statement-usbank"
-Utility bill,28.0,28,28,"bill-comed-usa, bill-gas-uk, bill-ee-uk","bill-comed-usa, bill-gas-uk, bill-ee-uk"
+Utility bill,28.0,28,28,"bill-comed-usa, bill-ee-uk, bill-gas-uk","bill-comed-usa, bill-ee-uk, bill-gas-uk"
