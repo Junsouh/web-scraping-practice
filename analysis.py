@@ -4,6 +4,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import re
 import unicodedata
+from collections import Counter
 
 def analyze_html(folder_path):
     data = []
@@ -208,11 +209,52 @@ def get_titles_at_price(category_df, price_type):
     
     # Filter for all items matching that price (handles ties)
     matches = category_df[category_df['Price'] == target]['Title'].tolist()
+
     return ", ".join(matches)
+
+def get_descriptions(folder, url):
+    url = url.replace("index.html", "").replace("../..", "/downloads")
+    url = SCRAPING_WEBSITE.rstrip("/") + url
+    url = url.replace("https://","").rstrip("/")
+
+    file_name = url.replace("/", "_") + ".html"
+    with open(os.path.join(folder, file_name), 'r', encoding='utf-8') as f:
+        soup = BeautifulSoup(f.read(), 'html.parser')
+        
+        # Find all descriptions
+        description_div = soup.find('div', class_='entry-content')
+
+        if description_div:
+            # Extract text, using strip=True to clean up whitespace
+            # and separator=" " to keep space between paragraphs
+            return description_div.get_text(separator=" ", strip=True)
+        
+    return ""
+
+def analyze_descriptions(text):
+    # Standard STOPWORDS logic
+    all_text = " ".join(text.astype(str)).lower()
+    words = re.findall(r'\b[a-z]{3,}\b', all_text) # Only words 3+ letters
+    filtered = [w for w in words if w not in STOPWORDS]
+    return ", ".join([f"{w}({c})" for w, c in Counter(filtered).most_common(TOP_N)])
+
+
 
 CREATE_CSV = False
 SCRAPING_WEBSITE = "https://editablepsd.xyz/"
 DATA_FOLDER = "html_files/"
+# Basic Stopwords List (Standard English)
+STOPWORDS = set([
+    "a", "an", "the", "and", "or", "but", "if", "then", "else", "when", "at", "from", "by", 
+    "for", "with", "about", "against", "between", "into", "through", "during", "before", 
+    "after", "above", "below", "to", "in", "out", "on", "off", "over", "under", "again", 
+    "further", "then", "once", "here", "there", "all", "any", "both", "each", "few", "more", 
+    "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", 
+    "too", "very", "can", "will", "just", "should", "now", "is", "was", "are", "this", "that",
+    "it", "you", "your", "our", "their", "we", "be", "has", "have", "been", "do", "does"
+])
+# Grab the top TOP_N most common words when analyzing descriptions
+TOP_N = 5
 def main():
     data_folder = "html_files/"
     if CREATE_CSV:
@@ -224,6 +266,7 @@ def main():
         print(f"{cat}")
     
     prices_and_item = []
+    descriptions = []
     for cat in categories:
         links = set()
         data = find_category_pages(DATA_FOLDER, cat[1]);
@@ -235,7 +278,10 @@ def main():
         prices = []
         for link in links:
             price = clean_price(find_price(DATA_FOLDER, link))
+            desc = get_descriptions(data_folder, link)
+
             clean_link = link.replace("index.html", "").replace("../", "").replace("/downloads/", "").rstrip("/")
+
             prices_and_item.append({
                 "Category" : cat[0],
                 "Title"    : clean_link,
@@ -243,18 +289,33 @@ def main():
             )
             prices.append(price)
 
-    df = pd.DataFrame(prices_and_item)
-    summary = df.groupby('Category')['Price'].agg(['mean', 'max', 'min']).reset_index()
+            descriptions.append({
+                "Category": cat[0],
+                "Title": clean_link,
+                "Description": desc
+            })
 
-    summary = summary.round(2)
-    print(summary.to_string(index=False))
+    # Process price information and get statistics
+    df_price = pd.DataFrame(prices_and_item)
+    summary_price = df_price.groupby('Category')['Price'].agg(['mean', 'max', 'min']).reset_index()
 
-    summary['Max_Items'] = summary['Category'].apply(
-    lambda x: get_titles_at_price(df[df['Category'] == x], 'max'))
-    summary['Min_Items'] = summary['Category'].apply(
-    lambda x: get_titles_at_price(df[df['Category'] == x], 'min'))
-    
-    summary.to_csv('category_analysis.csv', index=False)
+    summary_price = summary_price.round(2)
+    print(summary_price.to_string(index=False))
+
+    summary_price['Max_Items'] = summary_price['Category'].apply(
+    lambda x: get_titles_at_price(df_price[df_price['Category'] == x], 'max'))
+    summary_price['Min_Items'] = summary_price['Category'].apply(
+    lambda x: get_titles_at_price(df_price[df_price['Category'] == x], 'min'))
+
+    summary_price.to_csv('category_price.csv', index=False)
+
+    # Process descriptions and get stats
+    df_desc = pd.DataFrame(descriptions)
+
+    keyword_summary = df_desc.groupby('Category')['Description'].apply(analyze_descriptions).reset_index()
+    keyword_summary.columns = ['Category', 'Top_Keywords']
+
+    keyword_summary.to_csv('category_descriptions.csv', index=False)
 
 if __name__ == "__main__":
     main()
