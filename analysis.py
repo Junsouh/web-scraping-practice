@@ -102,6 +102,25 @@ def clean_text(text):
 
     return text.strip()
 
+def find_categories_for_printout(website):
+    categories = set()
+
+    with open(website, 'r', encoding='utf-8') as f:
+        html = BeautifulSoup(f.read(), 'html.parser')
+
+        # try to find the categories by looking at specific patterns in the homepage
+        nav_links = html.find_all('a', href=True)
+        for link in nav_links:
+            href = link['href']
+            # Look for patterns like '/category/' or 'product-category'
+            if '/category/' in href or 'product-cat' in href:
+                raw_text = link.text.strip()
+                category_name = clean_text(raw_text)
+                if category_name:
+                    categories.add(category_name)
+
+    return categories
+
 def find_categories(data_folder, website):
     categories = set()
 
@@ -275,6 +294,18 @@ def main():
     if CREATE_CSV:
         df = analyze_html(data_folder)
         scraping_stats("scraping_analysis.csv")
+
+    category_printout = set()
+    for filename in os.listdir(data_folder):
+        file_path = os.path.join(data_folder, filename)
+        if os.path.isfile(file_path):
+            category_printout = category_printout.union(find_categories_for_printout(file_path))
+
+    category_printout = {v for v in category_printout if not re.match("^[0-9]+$", v)}
+    category_printout = {v for v in category_printout if not re.match("^Previous|Next", v)}
+    category_printout = {v for v in category_printout if not re.match("Previous|Next^", v)}
+    print(category_printout)
+    
     categories = find_categories(data_folder, SCRAPING_WEBSITE + "page/1")
     print("Found the following categories:")
     for cat in categories:
